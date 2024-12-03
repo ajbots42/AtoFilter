@@ -1,3 +1,4 @@
+
 import sys, glob, importlib, logging, logging.config, pytz, asyncio
 from pathlib import Path
 
@@ -18,20 +19,20 @@ from aiohttp import web
 from plugins import web_server
 from plugins.clone import restart_bots
 
-from AJAYBOTS.bot import AJAYBOTS
-from AJAYBOTS.util.keepalive import ping_server
-from AJAYBOTS.bot.clients import initialize_clients
+from TechVJ.bot import TechVJBot
+from TechVJ.util.keepalive import ping_server
+from TechVJ.bot.clients import initialize_clients
 
 ppath = "plugins/*.py"
 files = glob.glob(ppath)
-AJAYBOTS.start()
+TechVJBot.start()
 loop = asyncio.get_event_loop()
+
 
 async def start():
     print('\n')
-    print('Initializing Your Bot')
-
-    bot_info = await AJAYBOTS.get_me()
+    print('Initalizing Your Bot')
+    bot_info = await TechVJBot.get_me()
     await initialize_clients()
     for name in files:
         with open(name) as a:
@@ -43,14 +44,14 @@ async def start():
             load = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(load)
             sys.modules["plugins." + plugin_name] = load
-            print("AJAYBOTS Imported => " + plugin_name)
+            print("Tech VJ Imported => " + plugin_name)
     if ON_HEROKU:
         asyncio.create_task(ping_server())
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
     temp.BANNED_CHATS = b_chats
-    me = await AJAYBOTS.get_me()
-    temp.BOT = AJAYBOTS
+    me = await TechVJBot.get_me()
+    temp.BOT = TechVJBot
     temp.ME = me.id
     temp.U_NAME = me.username
     temp.B_NAME = me.first_name
@@ -59,7 +60,7 @@ async def start():
     today = date.today()
     now = datetime.now(tz)
     time = now.strftime("%H:%M:%S %p")
-    await AJAYBOTS.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
+    await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
     if CLONE_MODE == True:
         print("Restarting All Clone Bots.......")
         await restart_bots()
@@ -70,8 +71,10 @@ async def start():
     await web.TCPSite(app, bind_address, PORT).start()
     await idle()
 
+
 if __name__ == '__main__':
     try:
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
+
